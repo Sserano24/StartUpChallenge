@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ignore local secret folder for service account keys
+env/
+env/*
+# (spreadsheet-keys.json removed — using ZAPIER_HOOK_URL and webhook forwarding now)
