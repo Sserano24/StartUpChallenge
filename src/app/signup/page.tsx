@@ -36,8 +36,9 @@ export default function SignupPage(): JSX.Element {
 
       setStatus("Thanks! We’ve recorded your info. ✅");
       (e.currentTarget as HTMLFormElement).reset();
-    } catch (err: any) {
-      setStatus(err?.message || "Couldn’t submit. Please try again. ⚠️");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err ?? "Couldn’t submit. Please try again. ⚠️");
+      setStatus(msg);
     } finally {
       setLoading(false);
     }

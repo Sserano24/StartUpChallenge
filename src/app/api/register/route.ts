@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
 
     const text = await resp.text().catch(() => '');
     return NextResponse.json({ success: false, error: `Webhook error: ${resp.status} ${text}` }, { status: 500 });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err?.message || String(err) }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err ?? 'Unknown error');
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
