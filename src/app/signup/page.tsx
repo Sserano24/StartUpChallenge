@@ -3,46 +3,48 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 
-export default function SignupPage(): JSX.Element {
+export default function SignupPage(): React.ReactElement {
   const [status, setStatus] = React.useState<string>("");
   const [loading, setLoading] = React.useState<boolean>(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setStatus("");
-    setLoading(true);
-    const form = new FormData(e.currentTarget);
+async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  const formEl = e.currentTarget;        // <— capture once, sync
+  setStatus("");
+  setLoading(true);
 
-    const payload = {
-      name: String(form.get("name") || "").trim().slice(0, 200),
-      company: String(form.get("company") || "").trim(),
-      role: String(form.get("role") || "").trim(),
-      audience: String(form.get("audience") || "").trim(), // "Engineering student" | "Engineering professional"
-      email: String(form.get("email") || "").trim(),
-      hp: String(form.get("hp") || ""), // honeypot
-    };
+  const form = new FormData(formEl);
+  const payload = {
+    name: String(form.get("name") || "").trim().slice(0, 200),
+    company: String(form.get("company") || "").trim(),
+    role: String(form.get("role") || "").trim(),
+    audience: String(form.get("audience") || "").trim(),
+    email: String(form.get("email") || "").trim(),
+    hp: String(form.get("hp") || ""),
+  };
 
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.success) {
-        throw new Error(data?.error || "Could not submit right now.");
-      }
-
-      setStatus("Thanks! We’ve recorded your info. ✅");
-      (e.currentTarget as HTMLFormElement).reset();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err ?? "Couldn’t submit. Please try again. ⚠️");
-      setStatus(msg);
-    } finally {
-      setLoading(false);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data?.success) {
+      throw new Error(data?.error || "Could not submit right now.");
     }
+
+    setStatus("Thanks! We’ve recorded your info. ✅");
+    formEl.reset();                      // <— use the captured element
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err ?? "Couldn’t submit. Please try again. ⚠️");
+    setStatus(msg);
+  } finally {
+    setLoading(false);
   }
+}
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-50 py-20 px-4 flex items-center justify-center">
@@ -125,7 +127,7 @@ export default function SignupPage(): JSX.Element {
         )}
 
         <p className="mt-3 text-center text-xs text-gray-500">
-          By submitting, you agree to be contacted about CrowdX. You can opt out anytime.
+          By submitting, you agree to be contacted about CrowdX for future updates to the project.
         </p>
       </motion.div>
     </div>

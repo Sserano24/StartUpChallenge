@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, ReactNode, ReactElement, isValidElement } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Rocket, GraduationCap, Coins, CreditCard, Users2, Share2, Shield,
@@ -10,13 +11,32 @@ import {
 } from "lucide-react";
 
 /* -------------------- MOCK DATA -------------------- */
+type Project = {
+  id: string;
+  title: string;
+  school: string;
+  blurb: string;
+  goal: number;
+  raised: number;
+  tags: string[];
+};
+
+type UserCard = {
+  id: string;
+  name: string;
+  school: string;
+  headline: string;
+  skills: string[];
+  avatar: string;
+};
+
 const MOCK_STATS = {
   active_projects: 128,
   funds_raised_k: 312,
   active_creators: 487,
-};
+} as const;
 
-const MOCK_PROJECTS = [
+const MOCK_PROJECTS: Project[] = [
   // Mechanical Engineering
   {
     id: "p-mech-01",
@@ -118,7 +138,7 @@ const MOCK_PROJECTS = [
   },
 ];
 
-const MOCK_USERS = [
+const MOCK_USERS: UserCard[] = [
   {
     id: "u1",
     name: "Avery Lin",
@@ -153,24 +173,28 @@ const MOCK_USERS = [
   },
 ];
 
-
-const SKILL_FILTERS = ["Embedded Systems", "AI/ML", "Robotics", "Computer Vision", "Web3", "Cloud & DevOps"];
+const SKILL_FILTERS = ["Embedded Systems", "AI/ML", "Robotics", "Computer Vision", "Web3", "Cloud & DevOps"] as const;
 
 /* -------------------- SMALL INLINE UI (LIGHT) -------------------- */
-const Stat = ({ label, value }) => (
+const Stat: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
   <div className="text-center">
     <div className="text-3xl font-bold text-slate-900">{value}</div>
     <div className="text-sm text-slate-600">{label}</div>
   </div>
 );
 
-const ProgressBar = ({ value }) => (
-  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+const ProgressBar: React.FC<{ value: number }> = ({ value }) => (
+  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden" aria-label="progress">
     <div className="h-full bg-blue-600" style={{ width: `${value}%` }} />
   </div>
 );
 
-const Badge = ({ children, variant = "default", className = "" }) => {
+type BadgeProps = {
+  children: ReactNode;
+  variant?: "default" | "secondary" | "outline";
+  className?: string;
+};
+const Badge: React.FC<BadgeProps> = ({ children, variant = "default", className = "" }) => {
   const base = "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border";
   const styles =
     variant === "secondary"
@@ -181,27 +205,57 @@ const Badge = ({ children, variant = "default", className = "" }) => {
   return <span className={`${base} ${styles} ${className}`}>{children}</span>;
 };
 
-const Button = ({ children, asChild = false, variant = "default", size = "md", className = "", ...props }) => {
-  const base = "inline-flex items-center justify-center font-medium rounded-2xl transition-colors";
-  const sizes = { md: "h-10 px-4", lg: "h-12 px-6 text-base" };
-  const variants = variant === "secondary"
-    ? "bg-slate-200 text-slate-900 hover:bg-slate-300"
-    : "bg-blue-600 text-white hover:bg-blue-700";
-  const classes = `${base} ${sizes[size]} ${variants} ${className}`;
-  if (asChild) return React.cloneElement(children, { className: `${classes} ${children.props.className ?? ""}`, ...props });
-  return <button className={classes} {...props}>{children}</button>;
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  children: ReactNode | ReactElement;
+  asChild?: boolean;
+  variant?: "default" | "secondary";
+  size?: "md" | "lg";
+  className?: string;
 };
 
-const Card = ({ children, className = "" }) => (
+const Button: React.FC<ButtonProps> = ({
+  children,
+  asChild = false,
+  variant = "default",
+  size = "md",
+  className = "",
+  ...props
+}) => {
+  const base = "inline-flex items-center justify-center font-medium rounded-2xl transition-colors";
+  const sizes = { md: "h-10 px-4", lg: "h-12 px-6 text-base" } as const;
+  const variants =
+    variant === "secondary"
+      ? "bg-slate-200 text-slate-900 hover:bg-slate-300"
+      : "bg-blue-600 text-white hover:bg-blue-700";
+  const classes = `${base} ${sizes[size]} ${variants} ${className}`;
+
+  if (asChild && isValidElement(children)) {
+    // Strongly type child to expose an optional className
+    const child = children as ReactElement<{ className?: string }>;
+    return React.cloneElement(child, {
+      className: `${classes} ${child.props.className ?? ""}`,
+      ...props,
+    });
+  }
+
+  return (
+    <button className={classes} {...props}>
+      {children}
+    </button>
+  );
+};
+
+
+const Card: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = "" }) => (
   <div className={`rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm ${className}`}>{children}</div>
 );
-const CardHeader = ({ children, className = "" }) => <div className={`p-6 ${className}`}>{children}</div>;
-const CardTitle = ({ children, className = "" }) => <h3 className={`text-xl font-semibold leading-none tracking-tight ${className}`}>{children}</h3>;
-const CardDescription = ({ children, className = "" }) => <p className={`text-sm text-slate-600 ${className}`}>{children}</p>;
-const CardContent = ({ children, className = "" }) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
-const CardFooter = ({ children, className = "" }) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
+const CardHeader: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = "" }) => <div className={`p-6 ${className}`}>{children}</div>;
+const CardTitle: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = "" }) => <h3 className={`text-xl font-semibold leading-none tracking-tight ${className}`}>{children}</h3>;
+const CardDescription: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = "" }) => <p className={`text-sm text-slate-600 ${className}`}>{children}</p>;
+const CardContent: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = "" }) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
+const CardFooter: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = "" }) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
 
-const Input = ({ className = "", ...props }) => (
+const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className = "", ...props }) => (
   <input
     className={`h-10 w-full rounded-xl border border-slate-300 bg-white text-slate-900 px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${className}`}
     {...props}
@@ -209,11 +263,17 @@ const Input = ({ className = "", ...props }) => (
 );
 
 /* Spotlight user inline */
-const SpotlightUsersInline = ({ users }) => (
+const SpotlightUsersInline: React.FC<{ users: UserCard[] }> = ({ users }) => (
   <CardContent className="grid sm:grid-cols-2 gap-4">
     {users.map((u) => (
       <div key={u.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 bg-white">
-        <img src={u.avatar} alt={u.name} className="h-10 w-10 rounded-full object-cover border border-slate-200" />
+        <Image
+          src={u.avatar}
+          alt={`${u.name} avatar`}
+          width={40}
+          height={40}
+          className="h-10 w-10 rounded-full object-cover border border-slate-200"
+        />
         <div className="min-w-0">
           <div className="font-medium text-slate-900 truncate">{u.name}</div>
           <div className="text-xs text-slate-600 truncate">
@@ -233,7 +293,7 @@ const SpotlightUsersInline = ({ users }) => (
 );
 
 /* Project card inline */
-const ProjectCard = ({ p }) => {
+const ProjectCard: React.FC<{ p: Project }> = ({ p }) => {
   const pct = Math.min(100, Math.round((p.raised / p.goal) * 100));
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow">
@@ -244,7 +304,7 @@ const ProjectCard = ({ p }) => {
             <GraduationCap className="w-3.5 h-3.5" /> {p.school}
           </Badge>
         </div>
-        <CardDescription className ="mt-4">{p.blurb}</CardDescription>
+        <CardDescription className="mt-4">{p.blurb}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex flex-wrap gap-2">
@@ -262,7 +322,7 @@ const ProjectCard = ({ p }) => {
       </CardContent>
       <CardFooter>
         {/* always go to /signup */}
-        <Button asChild className="w-full gap-2">
+        <Button asChild className="w-full gap-2" aria-label={`View project ${p.title}`}>
           <Link href="/signup">
             View Project <ArrowRight className="w-4 h-4" />
           </Link>
@@ -275,13 +335,11 @@ const ProjectCard = ({ p }) => {
 /* -------------------- PAGE -------------------- */
 export default function CrowdXLandingDemoSimple() {
   const router = useRouter();
-  const [projectSearch, setProjectSearch] = useState("");
   const [query, setQuery] = useState("");
 
-  // We keep local filtering, but per your request the Search buttons now navigate to /signup
   const searchedProjects = useMemo(() => {
-    if (!query) return MOCK_PROJECTS;
-    const q = query.toLowerCase();
+    const q = query.trim().toLowerCase();
+    if (!q) return MOCK_PROJECTS;
     return MOCK_PROJECTS.filter(
       (p) =>
         p.title.toLowerCase().includes(q) ||
@@ -311,8 +369,9 @@ export default function CrowdXLandingDemoSimple() {
             </h1>
             <p className="text-slate-600 text-lg">
               A platform where students can showcase their projects, receive feedback from peers and industry professionals, and connect with potential collaborators, mentors, or partners. The community also serves as a gateway to funding opportunities, investments, and valuable resources that help bring innovative ideas to life.
-  
-                Currently in BETA PHASE 0. Sign ups are encouraged.
+              <br />
+              <br />
+              Currently in BETA PHASE 0. Sign ups are encouraged.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button size="lg" className="gap-2" onClick={() => router.push("/signup")}>
@@ -340,7 +399,7 @@ export default function CrowdXLandingDemoSimple() {
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
                   {MOCK_PROJECTS.slice(0, 3).map((p) => (
-                    <Link key={p.id} href="/signup" className="block">
+                    <Link key={p.id} href="/signup" className="block" aria-label={`Open ${p.title} (requires signup)`}>
                       <div className="p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-md transition-shadow cursor-pointer">
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -381,7 +440,7 @@ export default function CrowdXLandingDemoSimple() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Share2 className="w-5 h-5" /> Showcase Your Build</CardTitle>
-                <CardDescription >Post updates, demos, and current progress</CardDescription>
+                <CardDescription>Post updates, demos, and current progress</CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-slate-600">
                 Turn your senior design project into a living portfolio where the world can see what you’re working on.
@@ -419,13 +478,11 @@ export default function CrowdXLandingDemoSimple() {
               <Input
                 placeholder="Search projects, skills, tech…"
                 className="w-72"
-                value={projectSearch}
-                onChange={(e) => {
-                  setProjectSearch(e.target.value);
-                }}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label="Search projects"
               />
-              {/* per request: Search button navigates to /signup */}
-              <Button onClick={() => { /* optional: setQuery(projectSearch.trim()); */ window.location.href = "/signup"; }}>
+              <Button onClick={() => router.push("/signup")}>
                 <Search className="w-4 h-4 mr-2" />
                 Search
               </Button>
@@ -435,23 +492,21 @@ export default function CrowdXLandingDemoSimple() {
           {noResults && <div className="text-sm text-slate-600 mb-4">No matching results.</div>}
 
           <div className="grid md:grid-cols-3 gap-6">
-            {(searchedProjects.length === 0 ? Array.from({ length: 3 }) : searchedProjects).map((p, idx) =>
-              searchedProjects.length === 0 ? (
-                <div key={idx} className="rounded-2xl border border-slate-200 p-6 animate-pulse h-48 bg-white" />
-              ) : (
-                <ProjectCard key={`${p.id}-${idx}`} p={p} />
-              )
-            )}
+            {searchedProjects.length === 0
+              ? Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={idx} className="rounded-2xl border border-slate-200 p-6 animate-pulse h-48 bg-white" />
+                ))
+              : searchedProjects.map((p) => <ProjectCard key={p.id} p={p} />)}
           </div>
 
           <div className="mt-6 flex md:hidden items-center gap-2">
             <Input
               placeholder="Search projects, skills, tech…"
-              value={projectSearch}
-              onChange={(e) => setProjectSearch(e.target.value)}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search projects"
             />
-            {/* mobile Search -> /signup */}
-            <Button className="gap-2" onClick={() => { /* optional: setQuery(projectSearch.trim()); */ window.location.href = "/signup"; }}>
+            <Button className="gap-2" onClick={() => router.push("/signup")}>
               <Search className="w-4 h-4" /> Search
             </Button>
           </div>
@@ -474,8 +529,8 @@ export default function CrowdXLandingDemoSimple() {
                 ))}
               </div>
               <div className="pt-4 flex gap-3">
-                <Button className="gap-2" onClick={() => window.location.assign("/signup")}><Search className="w-4 h-4" /> Explore Talent</Button>
-                <Button variant="secondary" className="gap-2" onClick={() => window.location.assign("/signup")}><Star className="w-4 h-4" /> Sponsor a Team</Button>
+                <Button className="gap-2" onClick={() => router.push("/signup")}><Search className="w-4 h-4" /> Explore Talent</Button>
+                <Button variant="secondary" className="gap-2" onClick={() => router.push("/signup")}><Star className="w-4 h-4" /> Sponsor a Team</Button>
               </div>
             </div>
 
@@ -490,9 +545,27 @@ export default function CrowdXLandingDemoSimple() {
         </div>
       </section>
 
-{/* CTA band */} <section className="py-12"> <div className="max-w-6xl mx-auto px-4"> <Card className="rounded-3xl border-blue-200 bg-blue-50"> <CardContent className="py-10 flex flex-col md:flex-row items-center justify-between gap-6"> <div> <h4 className="mt-6 text-2xl font-bold">Ready to launch your project?</h4> <p className="text-slate-700"> Create a campaign in minutes. Share progress. Get funded. Get noticed. </p> </div> <div className="flex gap-3 mt-6"> <Button size="lg" className="gap-2" onClick={() => window.location.assign("/signup")}> <Rocket className="w-4 h-4" /> Start a Campaign </Button> <Button size="lg" variant="secondary" className="gap-2" onClick={() => window.location.assign("/signup")}> <Coins className="w-4 h-4" /> Fund a Project </Button> </div> </CardContent> </Card> </div> </section>
-
-
+      {/* CTA band */}
+      <section className="py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <Card className="rounded-3xl border-blue-200 bg-blue-50">
+            <CardContent className="py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <h4 className="mt-6 text-2xl font-bold">Ready to launch your project?</h4>
+                <p className="text-slate-700">Create a campaign in minutes. Share progress. Get funded. Get noticed.</p>
+              </div>
+              <div className="flex gap-3 mt-6">
+                <Button size="lg" className="gap-2" onClick={() => router.push("/signup")}>
+                  <Rocket className="w-4 h-4" /> Start a Campaign
+                </Button>
+                <Button size="lg" variant="secondary" className="gap-2" onClick={() => router.push("/signup")}>
+                  <Coins className="w-4 h-4" /> Fund a Project
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* FAQ */}
       <section id="faq" className="py-16 md:py-24">
