@@ -19,6 +19,7 @@ type Project = {
   goal: number;
   raised: number;
   tags: string[];
+  href: string;
 };
 
 type UserCard = {
@@ -37,106 +38,38 @@ const MOCK_STATS = {
 } as const;
 
 const MOCK_PROJECTS: Project[] = [
-  // Mechanical Engineering
   {
-    id: "p-mech-01",
-    title: "Human-Powered Water Purifier Cart",
+    id: "p-cpe-01",
+    title: "Outdoor Fire Detection System",
     school: "CSUS",
-    blurb:
-      "Pedal-driven pump and inline multi-stage filter mounted on a welded steel frame for campus event hydration and emergency use.",
-    goal: 4800,
-    raised: 3100,
-    tags: ["Mechanical", "CAD/CAM", "Manufacturing"],
+    blurb: "An outdoor fire detection system using AI and IoT to monitor and alert for wildfires in real-time.",
+    goal: 2000,
+    raised: 200,
+    tags: ["Computer", "Circuit Design", "CAD Modeling"],
+    href: "/computer", // NEW
   },
-  // Electrical & Computer Engineering
   {
     id: "p-ece-01",
-    title: "Solar Microinverter with MPPT",
+    title: "Saftey Violation Detection Drone",
     school: "CSUS",
-    blurb:
-      "200W DC–AC microinverter featuring synchronous rectification and perturb-and-observe MPPT on an STM32 with isolated gate drivers.",
-    goal: 6200,
-    raised: 4025,
-    tags: ["Electrical", "Power Electronics", "Embedded"],
+    blurb: "A drone equipped with computer vision to identify and report safety violations on construction sites.",
+    goal: 3000,
+    raised: 550,
+    tags: ["Electrical", "AI", "Embedded"],
+    href: "/electrical", // NEW
   },
-  // Software Engineering
   {
     id: "p-soft-01",
-    title: "Campus Navigation App with Indoor Positioning",
+    title: "Inventory Management System",
     school: "CSUS",
-    blurb:
-      "Next.js + Expo app using BLE beacons and graph routing to guide students to classrooms, labs, and accessible entrances.",
-    goal: 3500,
-    raised: 2140,
-    tags: ["Software", "Mobile", "Next.js"],
-  },
-  // Civil Engineering
-  {
-    id: "p-civil-01",
-    title: "Smart Concrete Curing Monitor",
-    school: "CSUS",
-    blurb:
-      "Low-cost sensor nodes log humidity/temperature in curing slabs; data dashboards estimate strength gain to optimize pour schedules.",
-    goal: 5400,
-    raised: 2875,
-    tags: ["Civil", "IoT", "Data Logging"],
-  },
-  // Biomedical Engineering
-  {
-    id: "p-bme-01",
-    title: "Open-Source EMG Forearm Trainer",
-    school: "CSUS",
-    blurb:
-      "3D-printed exosleeve with surface EMG, Teensy MCU, and biofeedback game to aid rehab and grip-strength training.",
-    goal: 7800,
-    raised: 5660,
-    tags: ["Biomedical", "3D Printing", "Embedded"],
-  },
-  // Environmental Engineering
-  {
-    id: "p-env-01",
-    title: "LoRa Air Quality Mesh for Campus",
-    school: "CSUS",
-    blurb:
-      "Distributed PM2.5/NO₂ sensors report via LoRaWAN to a public map; enclosure designed for year-round Sacramento weather.",
-    goal: 4200,
-    raised: 1980,
-    tags: ["Environmental", "LoRaWAN", "Sensors"],
-  },
-  // Aerospace / Mechatronics
-  {
-    id: "p-aero-01",
-    title: "VTOL Drone for Roof Inspection",
-    school: "CSUS",
-    blurb:
-      "Tilt-rotor VTOL with carbon arms, PX4 flight stack, and YOLOv8 edge inference for detecting cracked shingles and pooling water.",
-    goal: 9600,
-    raised: 6125,
-    tags: ["Aerospace", "Robotics", "Computer Vision"],
-  },
-  // Industrial & Systems
-  {
-    id: "p-ind-01",
-    title: "Smart Kanban Shelves for the Machine Shop",
-    school: "CSUS",
-    blurb:
-      "Load cells + ESP32 track inventory of fasteners and cutters; webhook to auto-reorder and visualize stockouts.",
-    goal: 2700,
-    raised: 1530,
-    tags: ["Industrial", "IoT", "Operations"],
-  },
-  // Materials / Electrical
-  {
-    id: "p-mat-01",
-    title: "Flexible OLED Repair Station",
-    school: "CSUS",
-    blurb:
-      "Budget glovebox with nitrogen purge, hot-plate reflow profile, and microscope mount to practice flex-OLED trace repair.",
-    goal: 6900,
-    raised: 3220,
-    tags: ["Materials", "Electronics", "Lab Equipment"],
+    blurb: "A web-based inventory management system for buisnesses to track stock levels, orders, and deliveries.",
+    goal: 2000,
+    raised: 2000,
+    tags: ["Software", "Cloud Architecture", "Python"],
+    href: "/software", // NEW
   },
 ];
+
 
 const MOCK_USERS: UserCard[] = [
   {
@@ -292,45 +225,44 @@ const SpotlightUsersInline: React.FC<{ users: UserCard[] }> = ({ users }) => (
   </CardContent>
 );
 
-/* Project card inline */
 const ProjectCard: React.FC<{ p: Project }> = ({ p }) => {
   const pct = Math.min(100, Math.round((p.raised / p.goal) * 100));
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex items-center justify-between gap-3">
-          <CardTitle>{p.title}</CardTitle>
-          <Badge variant="secondary" className="gap-1">
-            <GraduationCap className="w-3.5 h-3.5" /> {p.school}
-          </Badge>
-        </div>
-        <CardDescription className="mt-4">{p.blurb}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex flex-wrap gap-2">
-          {p.tags.map((t) => (
-            <Badge key={t} variant="outline">
-              {t}
+    <Link href={p.href} className="block focus:outline-none" aria-label={`View ${p.title}`}>
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader>
+          <div className="flex items-center justify-between gap-3">
+            <CardTitle>{p.title}</CardTitle>
+            <Badge variant="secondary" className="gap-1">
+              <GraduationCap className="w-3.5 h-3.5" /> {p.school}
             </Badge>
-          ))}
-        </div>
-        <ProgressBar value={pct} />
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-slate-900">${p.raised.toLocaleString()} raised</span>
-          <span className="text-slate-600">of ${p.goal.toLocaleString()} goal</span>
-        </div>
-      </CardContent>
-      <CardFooter>
-        {/* always go to /signup */}
-        <Button asChild className="w-full gap-2" aria-label={`View project ${p.title}`}>
-          <Link href="/signup">
+          </div>
+          <CardDescription className="mt-4">{p.blurb}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {p.tags.map((t) => (
+              <Badge key={t} variant="outline">
+                {t}
+              </Badge>
+            ))}
+          </div>
+          <ProgressBar value={pct} />
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium text-slate-900">${p.raised.toLocaleString()} raised</span>
+            <span className="text-slate-600">of ${p.goal.toLocaleString()} goal</span>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full gap-2">
             View Project <ArrowRight className="w-4 h-4" />
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>
+          </Button>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 };
+
 
 /* -------------------- PAGE -------------------- */
 export default function CrowdXLandingDemoSimple() {
@@ -378,7 +310,7 @@ export default function CrowdXLandingDemoSimple() {
                 <Rocket className="w-4 h-4" /> Engineering Student
               </Button>
               <Button size="lg" variant="secondary" className="gap-2" onClick={() => router.push("/signup")}>
-                <Users2 className="w-4 h-4" /> Join as a Contributor
+                <Users2 className="w-4 h-4" /> Join as a Proffesional
               </Button>
             </div>
             <div className="grid grid-cols-3 gap-6 pt-4">
@@ -399,7 +331,8 @@ export default function CrowdXLandingDemoSimple() {
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
                   {MOCK_PROJECTS.slice(0, 3).map((p) => (
-                    <Link key={p.id} href="/signup" className="block" aria-label={`Open ${p.title} (requires signup)`}>
+                      <Link key={p.id} href={p.href} className="block" aria-label={`Open ${p.title}`}>
+
                       <div className="p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-md transition-shadow cursor-pointer">
                         <div className="flex items-start justify-between gap-3">
                           <div>
