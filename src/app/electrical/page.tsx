@@ -2,7 +2,6 @@
 "use client";
 
 import React from "react";
-import { notFound } from "next/navigation";
 import {
   Coins,
   CreditCard,
@@ -15,7 +14,13 @@ import {
 } from "lucide-react";
 
 /* -------------------- Inline UI primitives (no external component imports) -------------------- */
-const Button = ({ className = "", children, ...props }) => (
+/* -------------------- Inline UI primitives (typed) -------------------- */
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  className?: string;
+  children?: React.ReactNode;
+};
+
+export const Button: React.FC<ButtonProps> = ({ className = "", children, ...props }) => (
   <button
     className={`inline-flex items-center justify-center gap-2 h-10 px-4 rounded-2xl font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${className}`}
     {...props}
@@ -24,7 +29,7 @@ const Button = ({ className = "", children, ...props }) => (
   </button>
 );
 
-const SecondaryButton = ({ className = "", children, ...props }) => (
+export const SecondaryButton: React.FC<ButtonProps> = ({ className = "", children, ...props }) => (
   <button
     className={`inline-flex items-center justify-center gap-2 h-10 px-4 rounded-2xl font-medium transition-colors bg-slate-200 text-slate-900 hover:bg-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${className}`}
     {...props}
@@ -33,22 +38,38 @@ const SecondaryButton = ({ className = "", children, ...props }) => (
   </button>
 );
 
-const Card = ({ className = "", children }) => (
-  <div className={`rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm ${className}`}>
-    {children}
-  </div>
+type CardProps = {
+  className?: string;
+  children?: React.ReactNode;
+};
+
+export const Card: React.FC<CardProps> = ({ className = "", children }) => (
+  <div className={`rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm ${className}`}>{children}</div>
 );
-const CardHeader = ({ className = "", children }) => <div className={`p-6 ${className}`}>{children}</div>;
-const CardTitle = ({ className = "", children }) => (
+
+export const CardHeader: React.FC<CardProps> = ({ className = "", children }) => (
+  <div className={`p-6 ${className}`}>{children}</div>
+);
+
+export const CardTitle: React.FC<CardProps> = ({ className = "", children }) => (
   <h3 className={`text-xl font-semibold leading-none tracking-tight ${className}`}>{children}</h3>
 );
-const CardDescription = ({ className = "", children }) => (
+
+export const CardDescription: React.FC<CardProps> = ({ className = "", children }) => (
   <p className={`text-sm text-slate-600 ${className}`}>{children}</p>
 );
-const CardContent = ({ className = "", children }) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
-const CardFooter = ({ className = "", children }) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
 
-const Badge = ({ className = "", variant = "default", children }) => {
+export const CardContent: React.FC<CardProps> = ({ className = "", children }) => (
+  <div className={`p-6 pt-0 ${className}`}>{children}</div>
+);
+
+type BadgeProps = {
+  className?: string;
+  variant?: "default" | "secondary" | "outline";
+  children?: React.ReactNode;
+};
+
+export const Badge: React.FC<BadgeProps> = ({ className = "", variant = "default", children }) => {
   const styles =
     variant === "secondary"
       ? "bg-slate-100 text-slate-900 border-transparent"
@@ -56,33 +77,32 @@ const Badge = ({ className = "", variant = "default", children }) => {
       ? "bg-white text-slate-900 border-slate-200"
       : "bg-blue-50 text-blue-700 border-blue-200";
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${styles} ${className}`}
-    >
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${styles} ${className}`}>
       {children}
     </span>
   );
 };
 
-/* -------------------- Small helpers -------------------- */
-const ProgressBar = ({ value }) => (
-  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-    <div
-      className="h-full bg-blue-600"
-      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-    />
+/* -------------------- Small helpers (typed) -------------------- */
+type ProgressBarProps = { value: number };
+
+export const ProgressBar: React.FC<ProgressBarProps> = ({ value }) => (
+  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden" aria-label="progress">
+    <div className="h-full bg-blue-600" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
   </div>
 );
 
-const formatMoney = (n) => {
+export function formatMoney(n: number | string | undefined): string {
   const x = Number(n || 0);
   if (x >= 1_000_000) return `$${(x / 1_000_000).toFixed(1)}M`;
   if (x >= 1_000) return `$${(x / 1_000).toFixed(1)}k`;
   return `$${x.toLocaleString()}`;
-};
+}
 
 // simple avatar (initials)
-function Avatar({ name = "User" }) {
+type AvatarProps = { name?: string };
+
+export function Avatar({ name = "User" }: AvatarProps) {
   const initials = name
     .split(" ")
     .map((s) => s[0]?.toUpperCase())
@@ -95,47 +115,66 @@ function Avatar({ name = "User" }) {
   );
 }
 
+
 /* -------------------- Static project (no API calls) -------------------- */
 const STATIC_PROJECT = {
-  id: "p-cpe-01",
-  title: "Outdoor Fire Detection System",
+  id: "p-ece-01",
+  title: "Saftey Violation Detection Drone", // keeping your original spelling
   school: "CSUS",
   description:
-    "An outdoor fire detection system using AI and IoT to monitor and alert for wildfires in real-time.",
-  goal_amount: 2000,
-  current_amount: 200,
-  tags: ["Computer", "Circuit Design", "CAD Modeling"],
-    images: [
-    "/images/image1.jpg",
-    "/images/image2.jpg",
-    "/images/circuits.jpg",
-  ],
-  creator: { id: 10, name: "Alex Student" },
+    "A drone equipped with computer vision to identify and report safety violations on construction sites.",
+  goal_amount: 3000,
+  current_amount: 550,
+  tags: ["Electrical", "AI", "Embedded"],
+  // Images served from /public — update the filenames to what you actually have
+  images: ["/images/drone2.jpg", "/images/drone1.jpg", "/images/drone3.jpg"],
+  creator: { id: 20, name: "Jordan Reyes" },
   team_members: [
-    { id: 11, name: "Maya Vision" },
-    { id: 12, name: "Drew Controls" },
+    { id: 21, name: "Sam Vision" },
+    { id: 22, name: "Riley Flight" },
   ],
   is_sponsored: false,
   sponsored_by: "",
   start_date: "2025-08-15",
   end_date: "2025-12-10",
   milestones: [
-    { title: "Data Pipeline & Sensors", done: true },
-    { title: "Model Training & Inference", done: false },
-    { title: "Edge Deployment & Alerts", done: false },
+    { title: "Airframe & Flight Tests", done: true },
+    { title: "Onboard CV Model (PPE detection)", done: false },
+    { title: "Reporting Pipeline & Alerts", done: false },
   ],
   verified: true,
 };
 
-export default function CampaignPage({ params }) {
-  // Optional: only render if the route id matches our static project id
-  if (params?.id && params.id !== STATIC_PROJECT.id) return notFound();
+type CampaignPageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default function CampaignPage({ params }: CampaignPageProps) {
+  // In a client component we can't call notFound(); render a friendly fallback instead
+  const isWrongId = params?.id && params.id !== STATIC_PROJECT.id;
 
   const c = STATIC_PROJECT;
   const pct =
     c.goal_amount > 0
       ? Math.round((Number(c.current_amount) / Number(c.goal_amount)) * 100)
       : 0;
+
+  if (isWrongId) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-gradient-to-b from-white to-slate-50">
+        <Card className="max-w-lg w-full">
+          <CardHeader>
+            <CardTitle className="text-center">Project not found</CardTitle>
+            <CardDescription className="text-center">
+              The campaign you’re looking for doesn’t exist. Try the demo project: <code>{c.id}</code>
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
@@ -146,9 +185,7 @@ export default function CampaignPage({ params }) {
             <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs text-slate-600">
               <Sparkles className="w-3.5 h-3.5" /> Campaign
             </div>
-            <h1 className="text-2xl md:text-3xl text-base text-black font-bold tracking-tight">
-              {c.title}
-            </h1>
+            <h1 className="text-2xl md:text-3xl text-black font-bold tracking-tight">{c.title}</h1>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
                 <GraduationCap className="w-3.5 h-3.5" /> {c.school ?? "—"}
@@ -160,8 +197,7 @@ export default function CampaignPage({ params }) {
               )}
               {c.is_sponsored && (
                 <Badge className="gap-1">
-                  <Tag className="w-3.5 h-3.5" /> Sponsored
-                  {c.sponsored_by ? ` by ${c.sponsored_by}` : ""}
+                  <Tag className="w-3.5 h-3.5" /> Sponsored{c.sponsored_by ? ` by ${c.sponsored_by}` : ""}
                 </Badge>
               )}
             </div>
@@ -186,7 +222,7 @@ export default function CampaignPage({ params }) {
             {/* Gallery */}
             <Card className="rounded-2xl">
               <CardHeader className="pb-0">
-                <CardTitle className="text-base text-black ">Gallery</CardTitle>
+                <CardTitle className="text-base text-black">Gallery</CardTitle>
                 <CardDescription>Project images & prototypes</CardDescription>
               </CardHeader>
               <CardContent className="p-4">
@@ -202,19 +238,13 @@ export default function CampaignPage({ params }) {
                     <div className="col-span-12 md:col-span-4 grid grid-rows-2 gap-3">
                       {c.images.slice(1, 3).map((src, i) => (
                         <div key={i} className="overflow-hidden rounded-xl">
-                          <img
-                            src={src}
-                            alt={`${c.title} image ${i + 2}`}
-                            className="w-full h-[158px] object-cover"
-                          />
+                          <img src={src} alt={`${c.title} image ${i + 2}`} className="w-full h-[158px] object-cover" />
                         </div>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  <div className="h-64 grid place-items-center text-slate-500">
-                    No images yet
-                  </div>
+                  <div className="h-64 grid place-items-center text-slate-500">No images yet</div>
                 )}
               </CardContent>
             </Card>
@@ -226,9 +256,7 @@ export default function CampaignPage({ params }) {
                 <CardDescription>Overview, goals, and approach</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm text-slate-600 leading-6">
-                  {c.description}
-                </p>
+                <p className="text-sm text-slate-600 leading-6">{c.description}</p>
 
                 {/* Tags */}
                 {Array.isArray(c.tags) && c.tags.length > 0 && (
@@ -245,14 +273,12 @@ export default function CampaignPage({ params }) {
                 <div className="flex flex-wrap gap-4 text-xs text-slate-600">
                   {c.start_date && (
                     <div className="inline-flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" /> Start:{" "}
-                      {new Date(c.start_date).toLocaleDateString()}
+                      <Calendar className="w-3.5 h-3.5" /> Start: {new Date(c.start_date).toLocaleDateString()}
                     </div>
                   )}
                   {c.end_date && (
                     <div className="inline-flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" /> End:{" "}
-                      {new Date(c.end_date).toLocaleDateString()}
+                      <Calendar className="w-3.5 h-3.5" /> End: {new Date(c.end_date).toLocaleDateString()}
                     </div>
                   )}
                 </div>
@@ -269,19 +295,8 @@ export default function CampaignPage({ params }) {
                 {Array.isArray(c.milestones) && c.milestones.length > 0 ? (
                   c.milestones.map((m, i) => (
                     <div key={i} className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={!!m.done}
-                        readOnly
-                        className="w-4 h-4 accent-blue-600"
-                      />
-                      <span
-                        className={`text-sm ${
-                          m.done ? "line-through text-slate-500" : ""
-                        }`}
-                      >
-                        {m.title}
-                      </span>
+                      <input type="checkbox" checked={!!m.done} readOnly className="w-4 h-4 accent-blue-600" />
+                      <span className={`text-sm ${m.done ? "line-through text-slate-500" : ""}`}>{m.title}</span>
                     </div>
                   ))
                 ) : (
@@ -297,19 +312,13 @@ export default function CampaignPage({ params }) {
             <Card className="rounded-2xl border-blue-200 bg-blue-50">
               <CardHeader>
                 <CardTitle>Fund this project</CardTitle>
-                <CardDescription>
-                  Milestone-based payouts. Transparent updates.
-                </CardDescription>
+                <CardDescription>Milestone-based payouts. Transparent updates.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <ProgressBar value={pct} />
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">
-                    {formatMoney(c.current_amount)} raised
-                  </span>
-                  <span className="text-slate-600">
-                    of {formatMoney(c.goal_amount)} goal
-                  </span>
+                  <span className="font-medium">{formatMoney(c.current_amount)} raised</span>
+                  <span className="text-slate-600">of {formatMoney(c.goal_amount)} goal</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 pt-2">
                   <Button>
@@ -322,8 +331,7 @@ export default function CampaignPage({ params }) {
                 {c.is_sponsored && (
                   <div className="mt-2 text-xs text-slate-600">
                     <span className="font-medium">Sponsored</span>
-                    {c.sponsored_by ? ` by ${c.sponsored_by}` : ""}. Sponsorships
-                    highlight projects and may unlock perks.
+                    {c.sponsored_by ? ` by ${c.sponsored_by}` : ""}. Sponsorships highlight projects and may unlock perks.
                   </div>
                 )}
               </CardContent>
@@ -335,7 +343,7 @@ export default function CampaignPage({ params }) {
                 <CardTitle className="flex items-center gap-2">
                   <Users2 className="w-5 h-5" /> Creators & Team
                 </CardTitle>
-                <CardDescription>People behind the project</CardDescription>
+                <CardDescription className= "h-5">Reach out to the team to know more about the project & connect!</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Creator */}
@@ -344,9 +352,7 @@ export default function CampaignPage({ params }) {
                   <div className="flex items-center gap-3">
                     <Avatar name={c.creator?.name} />
                     <div className="text-sm">
-                      <div className="font-medium">
-                        {c.creator?.name ?? "—"}
-                      </div>
+                      <div className="font-medium">{c.creator?.name ?? "—"}</div>
                       <div className="text-slate-600">Project lead</div>
                     </div>
                   </div>
@@ -367,15 +373,13 @@ export default function CampaignPage({ params }) {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-sm text-slate-600">
-                      No team members listed.
-                    </div>
+                    <div className="text-sm text-slate-600">No team members listed.</div>
                   )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Safety / Trust */}
+            {/* Safety / Transparency */}
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -384,40 +388,35 @@ export default function CampaignPage({ params }) {
                 <CardDescription>How funds are handled</CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-slate-600 space-y-2">
-  <p className="font-medium">How payments work</p>
-  <ul className="list-disc pl-5 space-y-2">
-    <li>
-      <span className="font-medium">Direct payouts:</span> Payments are processed by our
-      payment provider and transferred directly to the verified creator’s connected account.
-      CrowdX never takes custody of funds or holds pooled balances.
-    </li>
-    <li>
-      <span className="font-medium">Milestone releases:</span> Contributions authorize
-      funding that is released only when a milestone is approved. If a milestone isn’t
-      approved, the release is paused or refunded per our policy.
-    </li>
-    <li>
-      <span className="font-medium">Identity verification (KYC):</span> Project creators
-      are identity-verified. We may require .edu email verification or partner validation.
-    </li>
-  </ul>
+                <p className="font-medium">How payments work</p>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>
+                    <span className="font-medium">Direct payouts:</span> Payments are processed by our payment provider and
+                    transferred directly to the verified creator’s connected account. CrowdX never takes custody of funds or
+                    holds pooled balances.
+                  </li>
+                  <li>
+                    <span className="font-medium">Milestone releases:</span> Contributions authorize funding that is released
+                    only when a milestone is approved. If a milestone isn’t approved, the release is paused or refunded per our
+                    policy.
+                  </li>
+                  <li>
+                    <span className="font-medium">Identity verification (KYC):</span> Project creators are identity-verified. We
+                    require .edu email verification or partner validation.
+                  </li>
+                </ul>
 
-  <p className="font-medium pt-2">Creators</p>
-  <ul className="list-disc pl-5 space-y-2">
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>
+                    Creators are responsible for using funds for stated educational/project purposes and for any tax
+                    obligations related to funds they receive.
+                  </li>
+                </ul>
 
-
-    <li>
-      <span className="font-medium">Responsibility:</span> Creators are responsible
-      for using funds for stated educational/project purposes and for any tax obligations
-      related to funds they receive.
-    </li>
-  </ul>
-
-
-  <p className="text-xs text-slate-500 pt-2">
-    By contributing, you agree to CrowdX’s Terms, Acceptable Use, and Refund Policy.
-  </p>
-</CardContent>
+                <p className="text-xs text-slate-500 pt-2">
+                  By contributing, you agree to CrowdX’s Terms, Acceptable Use, and Refund Policy.
+                </p>
+              </CardContent>
             </Card>
           </div>
         </div>
@@ -426,7 +425,5 @@ export default function CampaignPage({ params }) {
   );
 }
 
-/**
- * Keep if you want the page to always be dynamic.
- */
+/** Keep if you want the page to always be dynamic (no caching). */
 export const dynamic = "force-dynamic";

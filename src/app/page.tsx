@@ -510,7 +510,7 @@ export default function CrowdXLandingDemoSimple() {
           <div className="space-y-4">
             <Card><CardHeader><CardTitle className="text-base">How do payments work?</CardTitle><CardDescription>Fiat via Stripe; crypto via online wallets.</CardDescription></CardHeader></Card>
             <Card><CardHeader><CardTitle className="text-base">Who can launch a campaign?</CardTitle><CardDescription>Current students and recent grads with verifiable projects.</CardDescription></CardHeader></Card>
-            <Card><CardHeader><CardTitle className="text-base">Is CrowdX safe?</CardTitle><CardDescription>We use escrow, milestone payouts, and project verification to reduce risk.</CardDescription></CardHeader></Card>
+            <Card><CardHeader><CardTitle className="text-base">Is CrowdX safe?</CardTitle><CardDescription>We use secure payouts, milestone payouts, and project verification to reduce risk.</CardDescription></CardHeader></Card>
           </div>
         </div>
       </section>
